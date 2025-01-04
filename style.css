@@ -268,7 +268,7 @@ main{
     font-family: "Zen Maru Gothic", serif;
     color: white;
     position: relative;
-    left: 130px;
+    left: 100px;
     top:-300px;
     
 }
@@ -278,7 +278,7 @@ main{
     font-size: 15px;
     color: white;
     position: relative;
-    left: 250px;
+    left: 220px;
     top:-360px;
     width: 200px;
 }
