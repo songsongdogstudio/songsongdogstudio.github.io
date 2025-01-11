@@ -4,6 +4,8 @@
 
 html { scroll-behavior: smooth; }
 
+a {text-decoration:none;}
+
 *{box-sizing: border-box;}
 
 h2,h3,p {margin: 0;}
