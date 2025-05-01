@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>失陪 - 手機版最終版</title>
+  <style>
+    body {
+      background-color: #203236;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tree-frame {
+      width: 90%;
+      max-width: 400px;
+      margin-top: 150px;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      padding: 0 10px;
+    }
+    .message-form {
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message-form input, .message-form button {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+    }
+    .message-form button {
+      background: #cccccc;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .message-form button:hover {
+      background: #aaaaaa;
+    }
+    .messages-container {
+      margin: 20px auto;
+      width: 100%;
+    }
+    .message {
+      background: #f0f4f8;
+      color: #333;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      position: relative;
+      font-size: 16px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .like-button {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #bbb;
+      display: flex;
+      align-items: center;
+    }
+    .like-button.liked {
+      color: #e25555;
+    }
+    .like-count {
+      margin-left: 6px;
+      font-size: 16px;
+      color: #666;
+    }
+    #clearBtn, #toggleAllBtn {
+      margin: 10px 5px;
+      background: #cccccc;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #clearBtn:hover, #toggleAllBtn:hover {
+      background: #aaaaaa;
+    }
+    #messageSuccess {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffd700;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      z-index: 999;
+    }
+    #fullScreenAnimation {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #fullScreenAnimation img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    @keyframes move_wave {
+    0% {
+        transform: translateX(0) translateZ(0) scaleY(1)
+    }
+    50% {
+        transform: translateX(-20%) translateZ(0) scaleY(1)
+    }
+    100% {
+        transform: translateX(-50%) translateZ(0) scaleY(1)
+    }
+}
+.waveWrapper {
+    overflow: hidden;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    margin: auto;
+}
+.waveWrapperInner {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    height: 100%;
+    bottom: -450px;
+   
+}
+
+.bgBottom {
+    z-index: 0;
+}
+.wave {
+    position: fixed;
+    bottom: 99999999;
+    left: 0;
+    width: 300%;
+    height: 100%;
+    background-repeat: repeat ;
+    background-position: 0 bottom;
+    
+}
+
+
+.waveBottom {
+    background-size: 50% 1000px;
+}
+.waveAnimation .waveBottom {
+    animation: move_wave 60s linear infinite;
+}
+.waveWrapper,
+.waveWrapperInner,
+.wave {
+  pointer-events: none;
+}
+  </style>
+</head>
+<body>
+
+<div style="position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10;">
+  <img src="LOGO.png" alt="sit puê logo" style="max-height: 100px; opacity: 0.95;">
+</div>
+
+<div id="messageSuccess">祝福成功</div>
+
+<div id="fullScreenAnimation">
+  <img src="congratulations.gif" alt="成就達成動畫">
+</div>
+
+<img id="treeImage" class="tree-frame" src="未命名的作品-1.png" alt="tree growth frame">
+
+<div class="container">
+  <form class="message-form" id="messageForm">
+    <input type="text" id="messageInput" placeholder="寫下你的祝福..." required>
+    <button type="submit">送出</button>
+  </form>
+
+  <div class="messages-container" id="messagesContainer"></div>
+
+  <button id="toggleAllBtn">🔽 顯示所有留言</button>
+  <button id="clearBtn">🔒 清空所有留言</button>
+</div>
+
+<script>
+const totalFrames = 22;
+const treeImage = document.getElementById('treeImage');
+const fullScreenAnimation = document.getElementById('fullScreenAnimation');
+const container = document.getElementById('messagesContainer');
+let showingAll = false;
+
+function getMessages() {
+  return JSON.parse(localStorage.getItem('messages') || '[]');
+}
+
+function saveMessages(messages) {
+  localStorage.setItem('messages', JSON.stringify(messages));
+}
+
+function getTotalProgress(messages) {
+  let base = messages.length;
+  let likes = messages.reduce((sum, msg) => sum + (msg.likes || 0), 0);
+  return base + likes;
+}
+
+function renderTree() {
+  const messages = getMessages();
+  const progress = getTotalProgress(messages);
+
+  if (messages.length >= 66) {
+    triggerFullScreenAnimation();
+  } else {
+    const frameIndex = Math.min(Math.floor(progress / 3), totalFrames - 1) + 1;
+    treeImage.src = `未命名的作品-${frameIndex}.png`;
+  }
+}
+
+function triggerFullScreenAnimation() {
+  fullScreenAnimation.style.display = 'flex';
+  setTimeout(() => {
+    fullScreenAnimation.style.display = 'none';
+    treeImage.src = '未命名的作品-1.png';
+  }, 5000);
+}
+
+function renderMessages() {
+  const messages = getMessages();
+  container.innerHTML = '';
+
+  const messagesToShow = showingAll ? [...messages].reverse() : messages.slice(-8).reverse();
+
+  messagesToShow.forEach((msg, index) => {
+    const div = document.createElement('div');
+    div.className = 'message';
+    div.textContent = msg.text;
+
+    const heart = document.createElement('span');
+    heart.innerHTML = '❤';
+    heart.className = 'like-button' + ((msg.liked || false) ? ' liked' : '');
+
+    const likeCount = document.createElement('span');
+    likeCount.className = 'like-count';
+    likeCount.textContent = msg.likes || 0;
+
+    heart.onclick = () => {
+      const messages = getMessages();
+      const actualIndex = showingAll ? (messages.length - 1 - index) : (messages.length - 8 + (7 - index));
+      if (messages[actualIndex]) {
+        messages[actualIndex].liked = !messages[actualIndex].liked;
+        messages[actualIndex].likes = (messages[actualIndex].likes || 0) + (messages[actualIndex].liked ? 1 : -1);
+        saveMessages(messages);
+        renderMessages();
+        renderTree();
+      }
+    };
+
+    heart.appendChild(likeCount);
+    div.appendChild(heart);
+    container.appendChild(div);
+  });
+}
+
+function showSuccess() {
+  const successDiv = document.getElementById('messageSuccess');
+  successDiv.style.display = 'block';
+  setTimeout(() => {
+    successDiv.style.display = 'none';
+  }, 2000);
+}
+
+document.getElementById('messageForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const input = document.getElementById('messageInput');
+  const messages = getMessages();
+  messages.push({ text: input.value, liked: false, likes: 0 });
+  saveMessages(messages);
+  input.value = '';
+  renderMessages();
+  renderTree();
+  showSuccess();
+});
+
+document.getElementById('toggleAllBtn').addEventListener('click', () => {
+  showingAll = !showingAll;
+  document.getElementById('toggleAllBtn').innerText = showingAll ? "🔼 收合留言" : "🔽 顯示所有留言";
+  renderMessages();
+  setTimeout(() => {
+    window.scrollTo({ top: showingAll ? document.body.scrollHeight : 0, behavior: 'smooth' });
+  }, 150);
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  const password = prompt("password：");
+  if (password === "2024tree") {
+    if (confirm("確定要清除所有留言與愛心？這將無法復原！")) {
+      localStorage.removeItem('messages');
+      renderMessages();
+      renderTree();
+      alert("留言已清除 ✅");
+    }
+  } else {
+    alert("密碼錯誤，無法清除留言 ❌");
+  }
+});
+
+renderTree();
+renderMessages();
+</script>
+<div class="waveWrapper waveAnimation">
+  <div class="waveWrapperInner bgTop"> </div>
+  
+  <div class="waveWrapperInner bgBottom">
+    <div class="wave waveBottom" style="background-image: url('wave.png')"></div>
+  </div>
+</body>
+</html>
