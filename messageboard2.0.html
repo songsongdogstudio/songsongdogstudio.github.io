@@ -308,7 +308,8 @@ fetchMessages();
 
     // 重新渲染樹的狀態，允許後續互動更新
     renderTree();
-  }, 5000);
+    renderMessages(); // 確保留言板功能恢復正常
+  }, 5000); // 假設動畫播放時間為 5 秒
 }
   
   async function renderMessages() {
