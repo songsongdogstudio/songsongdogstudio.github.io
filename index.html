@@ -31,7 +31,7 @@
       align-items: center;
       z-index: 10;
     }
-       #introGif {
+    #introGif {
   width: 100%;
   height: 100%;
   object-fit: cover; /* 確保 GIF 滿版且保持比例 */
@@ -61,30 +61,52 @@
       opacity: 1;
     }
     .text {
-     color: white;
-    text-align: left; /* 將文字對齊到左邊 */
-     margin-left: 20px; /* 與左邊保持適當距離 */
-     font-size: 16px;
-    }
+  color: rgb(225, 225, 225);
+  text-align: left; /* 將文字對齊到左邊 */
+  margin-left: 5vw; /* 與左邊保持適當距離 */
+  font-size: 2vw; /* 字體大小相對於螢幕寬度 */
+}
+
+@media (max-width: 768px) {
+  .text {
+    font-size: 4vw; /* 手機上稍微放大字體 */
+    margin-left: 6vw; /* 調整與左側的距離 */
+  }
+}
     .enter-button {
-      font-family: optima, sans-serif;
-  font-size: 3vw; /* 字體大小相對於螢幕寬度 */
+        font-family: optima, sans-serif;
+  font-size: 5vw; /* 字體大小相對於螢幕寬度 */
   position: absolute;
-  bottom: 10vh; /* 距離底部 10% 的螢幕高度 */
+  bottom: 15vh; /* 距離底部 8% 的螢幕高度 */
   right: 5vw; /* 距離右側 5% 的螢幕寬度 */
-  padding: 1vh 2vw; /* 使用相對單位設置內邊距 */
+  padding: 1.5vh 3vw; /* 使用相對單位設置內邊距 */
   background-color: #ddd;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  display: fixed;
     }
     .boat {
-     position: absolute;
+    position: absolute;
   bottom: 5vh; /* 距離底部 5% 的螢幕高度 */
   left: 5vw; /* 距離左側 5% 的螢幕寬度 */
-  width: 20vw; /* 寬度設為螢幕寬度的 20% */
+  width: 30vw; /* 寬度設為螢幕寬度的 30% */
   height: auto; /* 確保圖片比例不變 */
-    }
+  
+}
+
+@media (max-width: 768px) {
+  .boat {
+     width: 70vw; /* 放大到螢幕寬度的 70% */
+    bottom: 6vh; /* 調整距離底部的距離 */
+  }
+
+  .enter-button {
+    font-size: 3vw; /* 手機上稍微放大字體 */
+    bottom: 40vh; /* 調整距離底部的距離 */
+    right: 6vw; /* 調整距離右側的距離 */
+  }
+}
 
   </style>
 </head>
