@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sit-Pue</title>
+  <style>
+    body {
+      height: 100vh; /* 確保 body 高度覆蓋整個視窗 */
+      background-color: #203236;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+      overflow: visible; /* 確保波浪不被裁切 */
+      position: relative; /* 確保波浪的定位基於 body */
+    }
+    .tree-frame {
+      width: 90%;
+      max-width: 400px;
+      height: auto;
+      margin-top: 100px;
+    }
+    .container {
+      width: 90%;
+      position: relative; /* 確保內容位於波浪之上 */
+      z-index: 1; /* 提升內容層級 */
+      max-width: 600px;
+      padding: 0 10px;
+      padding-bottom: 300px; /* 增加底部空間，避免內容與波浪重疊 */
+
+    }
+    .message-form {
+      position: relative; /* 確保按鈕的定位基於表單容器 */
+      align-items: center;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message-form input, .message-form button {
+      flex: 1; /* 讓輸入框填滿剩餘空間 */
+    padding: 20px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: none;
+    box-sizing: border-box;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+    }
+    .message-form button {
+      position: absolute;
+    bottom: 10px; /* 調整按鈕位置 */
+    right: 10px; /* 調整按鈕位置 */
+    width: 80px; /* 縮小按鈕寬度 */
+    height: 30px; /* 縮小按鈕高度 */
+    font-size: 15px; /* 調整字體大小 */
+    border-radius: 8px;
+    background: #cccccc;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.3s;
+     text-align: center;
+     line-height: 30px; /* 文字垂直置中，與按鈕高度一致 */
+    padding: 0; /* 移除內邊距，避免影響文字對齊 */
+    box-sizing: border-box; /* 確保寬高計算包含邊框 */
+    }
+    .message-form button:hover {
+      background: #aaaaaa;
+    }
+    .messages-container {
+      margin: 20px auto;
+      width: 100%;
+    }
+    .message {
+      background: #f0f4f8;
+      color: #333;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      position: relative;
+      font-size: 16px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .like-button {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      cursor: pointer;
+      font-size: 20px;
+      color: #bbb;
+      display: flex;
+      align-items: center;
+    }
+    .like-button.liked {
+      color: #e25555;
+    }
+    .like-count {
+      margin-left: 6px;
+      font-size: 16px;
+      color: #666;
+    }
+    #clearBtn, #toggleAllBtn {
+      margin: 10px 5px;
+      background: #cccccc;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #clearBtn:hover, #toggleAllBtn:hover {
+      background: #aaaaaa;
+    }
+
+    #messageSuccess {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffd700;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      z-index: 999;
+    }
+    
+
+.bgBottom {
+    z-index: 0;
+}
+
+
+@keyframes move_wave {
+    0% {
+        transform: translateX(0) translateZ(0) scaleY(1)
+    }
+    50% {
+        transform: translateX(-20%) translateZ(0) scaleY(1)
+    }
+    100% {
+        transform: translateX(-50%) translateZ(0) scaleY(1)
+    }
+}
+.waveWrapper {
+    overflow: hidden;
+    position: absolute;
+    width: 100%;/*波浪的寬度*/
+    height: 300px;
+    left: 0;
+    bottom: -160px;/*波浪在整個畫面上的高度*/
+    position: fixed;
+    z-index: -1; /* 確保波浪在背景層 */
+  
+}
+.waveWrapperInner {
+    position: absolute;
+    width: 70%;
+    height: 400px;
+    bottom: 0;
+   
+}
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 300%;
+    height: 600px;/*波浪本體的高度*/
+    background-repeat: repeat ;
+    background-size: 100% 400px;
+    background-position: 0 bottom;
+    
+}
+
+
+.waveBottom {
+    background-size: 50% 400px;
+}
+.waveAnimation .waveBottom {
+    animation: move_wave 60s linear infinite;
+    
+}
+.waveWrapper,
+.waveWrapperInner,
+.wave {
+  pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <div id="messageSuccess">祝福成功</div>
+  <div style="position: absolute; top: 5px; left: 50%; transform: translateX(-50%); z-index: 10;">
+    <img src="LOGO.png" alt="sit puê logo" style="max-height: 100px; opacity: 0.95;">
+  </div>
+
+  <img id="treeImage" class="tree-frame" src="frame/frame1.png" alt="tree frame">
+
+  <div class="container">
+    <form class="message-form" id="messageForm">
+      <input type="text" id="messageInput" placeholder="寫下你的祝福..." required />
+      <button type="submit">送出</button>
+    </form>
+
+    <div class="messages-container" id="messagesContainer"></div>
+
+    <button id="toggleAllBtn">﹀All Comments﹀</button>
+  </div>
+
+  <div class="waveWrapper waveAnimation">
+    <div class="waveWrapperInner bgTop"></div>
+    <div class="waveWrapperInner bgBottom">
+      <div class="wave waveBottom" style="background-image: url('wave.png')"></div>
+    </div>
+  </div>
+
+  <div id="finalAnimation" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+    <img src="congratulations.gif" alt="恭喜動畫" class="tree-frame" />
+  </div>
+</body>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase 初始化
+  const firebaseConfig = {
+    apiKey: "AIzaSyAs4rc7TlfatOI4fuRhfSpuYGIN9VYPW4w",
+    authDomain: "treemessages.firebaseapp.com",
+    projectId: "treemessages",
+    storageBucket: "treemessages.appspot.com",
+    messagingSenderId: "701804625359",
+    appId: "1:701804625359:web:50633edb8ecad43d5d66ba",
+    measurementId: "G-GSP7E33C8R"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  async function renderTree() {
+    const snapshot = await db.collection("messages").get();
+    const messages = snapshot.docs.map(doc => doc.data());
+    const totalInteractions = messages.length + messages.reduce((sum, msg) => sum + (msg.likes || 0), 0);
+    const frameIndex = Math.min(Math.floor(totalInteractions / 3) + 1, 22);
+    treeImage.src = "/frame/frame" + frameIndex + ".png";
+
+    if (frameIndex === 22) {
+      showFinalAnimation();
+    }
+  }
+
+  async function fetchMessages() {
+  try {
+    const snapshot = await db.collection("messages").get();
+    console.log(snapshot.docs.map(doc => doc.data()));
+  } catch (error) {
+    console.error("Failed to fetch messages:", error);
+  }
+}
+
+// 呼叫函數
+fetchMessages();
+
+  function showFinalAnimation() {
+    const finalAnimation = document.getElementById('finalAnimation');
+    finalAnimation.style.display = 'block';
+
+    setTimeout(() => {
+      finalAnimation.style.display = 'none';
+    }, 5000);
+  }
+
+  
+  async function renderMessages() {
+      const query = showingAll
+    ? db.collection("messages").orderBy("createdAt", "desc") // 顯示所有留言
+    : db.collection("messages").orderBy("createdAt", "desc").limit(8); // 只顯示最新 8 則留言
+
+  const snapshot = await query.get();
+  container.innerHTML = ''; // 清空現有內容
+
+snapshot.forEach(doc => {
+  const data = doc.data();
+  const div = document.createElement('div');
+  div.className = 'message';
+  div.textContent = data.text;
+
+  const heart = document.createElement('span');
+  heart.innerHTML = '❤';
+  heart.className = 'like-button' + (data.liked ? ' liked' : '');
+
+  const likeCount = document.createElement('span');
+  likeCount.className = 'like-count';
+  likeCount.textContent = data.likes || 0;
+
+  heart.appendChild(likeCount);
+  div.appendChild(heart);
+  container.appendChild(div);
+
+  heart.onclick = async () => {
+    const docRef = db.collection("messages").doc(doc.id);
+
+    try {
+      // 使用 Firebase 的原子操作來更新 likes
+      await docRef.update({
+        likes: firebase.firestore.FieldValue.increment(1) // 每次點擊增加 1
+      });
+
+      // 重新渲染留言和樹的狀態
+      renderMessages();
+      renderTree();
+    } catch (error) {
+      console.error("Failed to update likes:", error);
+    }
+  };
+}); // 關閉 forEach
+} // 關閉 renderMessages 函數
+
+function adjustWavePosition() {
+  const treeImage = document.getElementById('treeImage');
+  const waveWrapper = document.querySelector('.waveWrapper');
+  const treeBottom = treeImage.getBoundingClientRect().bottom + window.scrollY;
+  waveWrapper.style.top = ''; // 清除 top 設置
+  waveWrapper.style.bottom = `-${window.innerHeight - treeBottom}px`; // 固定在 frame 下方
+}
+
+window.addEventListener('load', adjustWavePosition);
+window.addEventListener('resize', adjustWavePosition);
+
+document.getElementById('messageForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+  if (!text) {
+    alert('請輸入留言內容！');
+    return;
+  }
+
+  await db.collection("messages").add({
+    text: text,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  input.value = '';
+  renderMessages();
+});
+
+let showingAll = false; // 預設為不顯示所有留言
+
+document.getElementById('toggleAllBtn').addEventListener('click', () => {
+  showingAll = !showingAll; // 切換顯示狀態
+  document.getElementById('toggleAllBtn').innerText = showingAll ? "△" : "▽ All Blessings";
+  renderMessages(); // 重新渲染留言
+  setTimeout(() => {
+    window.scrollTo({ top: showingAll ? document.body.scrollHeight : 0, behavior: 'smooth' });
+  }, 150);
+});
+
+  
+
+ let treeImage;
+let container;
+
+window.onload = () => {
+  treeImage = document.getElementById('treeImage');
+  container = document.getElementById('messagesContainer');
+
+  renderTree();
+  renderMessages();
+};
+</script>
+</html>
