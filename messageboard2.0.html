@@ -315,49 +315,50 @@ fetchMessages();
 }
   
   async function renderMessages() {
-      const query = showingAll
+  const query = showingAll
     ? db.collection("messages").orderBy("createdAt", "desc") // 顯示所有留言
     : db.collection("messages").orderBy("createdAt", "desc").limit(8); // 只顯示最新 8 則留言
 
- const snapshot = await query.get();
+  const snapshot = await query.get();
   if (container) {
     container.innerHTML = ''; // 清空現有內容
 
-snapshot.forEach(doc => {
-  const data = doc.data();
-  const div = document.createElement('div');
-  div.className = 'message';
-  div.textContent = data.text;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.textContent = data.text;
 
-  const heart = document.createElement('span');
-  heart.innerHTML = '❤';
-  heart.className = 'like-button' + (data.liked ? ' liked' : '');
+      const heart = document.createElement('span');
+      heart.innerHTML = '❤';
+      heart.className = 'like-button' + (data.liked ? ' liked' : '');
 
-  const likeCount = document.createElement('span');
-  likeCount.className = 'like-count';
-  likeCount.textContent = data.likes || 0;
+      const likeCount = document.createElement('span');
+      likeCount.className = 'like-count';
+      likeCount.textContent = data.likes || 0;
 
-  heart.appendChild(likeCount);
-  div.appendChild(heart);
-  container.appendChild(div);
+      heart.appendChild(likeCount);
+      div.appendChild(heart);
+      container.appendChild(div);
 
-  heart.onclick = async () => {
-    const docRef = db.collection("messages").doc(doc.id);
+      heart.onclick = async () => {
+        const docRef = db.collection("messages").doc(doc.id);
 
-    try {
-      // 使用 Firebase 的原子操作來更新 likes
-      await docRef.update({
-        likes: firebase.firestore.FieldValue.increment(1) // 每次點擊增加 1
-      });
+        try {
+          // 使用 Firebase 的原子操作來更新 likes
+          await docRef.update({
+            likes: firebase.firestore.FieldValue.increment(1) // 每次點擊增加 1
+          });
 
-      // 重新渲染留言和樹的狀態
-      renderMessages();
-      renderTree();
-    } catch (error) {
-      console.error("Failed to update likes:", error);
-    }
-  };
-}); // 關閉 forEach
+          // 重新渲染留言和樹的狀態
+          renderMessages();
+          renderTree();
+        } catch (error) {
+          console.error("Failed to update likes:", error);
+        }
+      };
+    }); // 關閉 forEach
+  } // 關閉 if (container)
 } // 關閉 renderMessages 函數
 
 function adjustWavePosition() {
