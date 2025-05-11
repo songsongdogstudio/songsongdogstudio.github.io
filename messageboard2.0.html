@@ -270,7 +270,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  async function renderTree() {
+ async function renderTree() {
   const snapshot = await db.collection("messages").get();
   const messages = snapshot.docs.map(doc => doc.data());
   const totalInteractions = messages.length + messages.reduce((sum, msg) => sum + (msg.likes || 0), 0);
@@ -279,7 +279,7 @@
   // 如果 frameIndex 達到 22，播放結尾動畫
   if (frameIndex === 22) {
     showFinalAnimation();
-  } else {
+  } else if (treeImage) {
     treeImage.src = "/frame/frame" + frameIndex + ".png"; // 更新樹的圖片
   }
 }
@@ -303,12 +303,14 @@ fetchMessages();
   setTimeout(() => {
     finalAnimation.style.display = 'none'; // 5 秒後隱藏動畫
 
-    // 重置樹的圖片為第一格
-    treeImage.src = "/frame/frame1.png";
+    // 確保 treeImage 已初始化
+    if (treeImage) {
+      treeImage.src = "/frame/frame1.png"; // 重置樹的圖片為第一格
+    }
 
-    // 重新渲染樹的狀態，允許後續互動更新
+    // 重新渲染樹的狀態和留言板
     renderTree();
-    renderMessages(); // 確保留言板功能恢復正常
+    renderMessages();
   }, 5000); // 假設動畫播放時間為 5 秒
 }
   
@@ -317,8 +319,9 @@ fetchMessages();
     ? db.collection("messages").orderBy("createdAt", "desc") // 顯示所有留言
     : db.collection("messages").orderBy("createdAt", "desc").limit(8); // 只顯示最新 8 則留言
 
-  const snapshot = await query.get();
-  container.innerHTML = ''; // 清空現有內容
+ const snapshot = await query.get();
+  if (container) {
+    container.innerHTML = ''; // 清空現有內容
 
 snapshot.forEach(doc => {
   const data = doc.data();
@@ -399,7 +402,7 @@ document.getElementById('toggleAllBtn').addEventListener('click', () => {
 
   
 
- let treeImage;
+let treeImage;
 let container;
 
 window.onload = () => {
