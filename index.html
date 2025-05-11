@@ -31,12 +31,19 @@
       align-items: center;
       z-index: 10;
     }
-    #introGif {
-      width: 100%;
-      height: 100%;
-      object-fit: cover; /* 確保 GIF 滿版且保持比例 */
-      transition: opacity 1s ease; /* 添加淡出效果 */
-    }
+       #introGif {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 確保 GIF 滿版且保持比例 */
+  transition: opacity 1s ease; /* 添加淡出效果 */
+}
+
+@media (max-width: 768px) {
+  #introGif {
+    width: 90%; /* 縮小到原大小的 90% */
+    height: auto; /* 確保比例不變 */
+  }
+}
     .content {
       font-family: optima, sans-serif;
       position: absolute;
