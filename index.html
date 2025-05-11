@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Intro</title>
+  <style>
+     * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #2a2e2b;
+      font-family: 'Arial', sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+    .container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    .intro-animation {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #2a2e2b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #introGif {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 確保 GIF 滿版且保持比例 */
+      transition: opacity 1s ease; /* 添加淡出效果 */
+    }
+    .content {
+      font-family: optima, sans-serif;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: flex;
+      flex-direction: column;
+       justify-content: center; /* 垂直置中 */
+      align-items: flex-start; /* 將內容對齊到左邊 */   
+      padding: 20px;
+    }
+    .content.show {
+      opacity: 1;
+    }
+    .text {
+     color: white;
+    text-align: left; /* 將文字對齊到左邊 */
+     margin-left: 20px; /* 與左邊保持適當距離 */
+     font-size: 16px;
+    }
+    .enter-button {
+      font-family: optima, sans-serif;
+      font-size: 16px;
+      position: absolute; /* 使用絕對定位 */
+    bottom: 350px; /* 距離底部 20px */
+    right: 50px; /* 距離右側 20px */
+    padding: 10px 20px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    }
+    .boat {
+      position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 350px; /* 原本是 100px，放大 2 倍 */
+  height: auto; /* 確保圖片比例不變 */
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="intro-animation" id="intro">
+      <img id="introGif" src="Index.gif" alt="Intro Animation" />
+    </div>
+
+    <div class="content" id="content">
+      <div class="text">
+        With blessing as its sail,<br />
+        may the soul voyage toward a gentler shore.
+      </div>
+      <button class="enter-button" onclick="enterSite()">Enter</button>
+      <img class="boat" src="boat.png" alt="Boat"/>
+    </div>
+  </div>
+
+  <script>
+   const intro = document.getElementById('intro');
+const introGif = document.getElementById('introGif');
+const content = document.getElementById('content');
+
+// 模擬 GIF 播放完成後的行為
+setTimeout(() => {
+  introGif.style.opacity = 0; // 讓 GIF 淡出
+  setTimeout(() => {
+    intro.style.display = 'none'; // 完全移除 intro
+    content.classList.add('show'); // 顯示內容
+  }, 1000); // 等待淡出完成後移除
+}, 5000); // 假設 GIF 播放時間為 5 秒
+
+function enterSite() {
+  window.location.href = "messageboard2.0.html";
+}
+  </script>
+</body>
+</html>
