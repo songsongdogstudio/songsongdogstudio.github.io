@@ -61,21 +61,21 @@
     }
     .enter-button {
       font-family: optima, sans-serif;
-      font-size: 16px;
-      position: absolute; /* 使用絕對定位 */
-    bottom: 350px; /* 距離底部 20px */
-    right: 50px; /* 距離右側 20px */
-    padding: 10px 20px;
-    background-color: #ddd;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  font-size: 3vw; /* 字體大小相對於螢幕寬度 */
+  position: absolute;
+  bottom: 10vh; /* 距離底部 10% 的螢幕高度 */
+  right: 5vw; /* 距離右側 5% 的螢幕寬度 */
+  padding: 1vh 2vw; /* 使用相對單位設置內邊距 */
+  background-color: #ddd;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
     }
     .boat {
-      position: absolute;
-  bottom: 20px;
-  left: 20px;
-  width: 350px; /* 原本是 100px，放大 2 倍 */
+     position: absolute;
+  bottom: 5vh; /* 距離底部 5% 的螢幕高度 */
+  left: 5vw; /* 距離左側 5% 的螢幕寬度 */
+  width: 20vw; /* 寬度設為螢幕寬度的 20% */
   height: auto; /* 確保圖片比例不變 */
     }
 
