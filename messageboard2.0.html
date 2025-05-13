@@ -153,10 +153,13 @@
   display: flex;
   justify-content: center; /* 水平置中 */
   align-items: center; /* 垂直置中 */
+  opacity: 0; /* 預設透明 */
+  transition: opacity 0.5s ease; /* 添加過渡效果 */
 }
+
 #finalAnimation img {
-   max-width: 90%; /* 確保動畫不超過視窗寬度 */
-  max-height: 90%; /* 確保動畫不超過視窗高度 */
+  max-width: 95%; /* 確保動畫不超過視窗寬度 */
+  max-height: 95%; /* 確保動畫不超過視窗高度 */
   object-fit: contain; /* 確保圖片保持比例 */
 }
 
@@ -247,9 +250,9 @@
     </div>
   </div>
 
-  <div id="finalAnimation" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
-    <img src="congratulations.gif" alt="恭喜動畫" class="tree-frame" />
-  </div>
+  <div id="finalAnimation">
+  <img src="congratulations.gif" alt="恭喜動畫" class="tree-frame" />
+</div>
 </body>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -300,25 +303,27 @@
 // 呼叫函數
 fetchMessages();
 
- function showFinalAnimation() {
+function showFinalAnimation() {
   const finalAnimation = document.getElementById('finalAnimation');
   finalAnimation.style.display = 'flex'; // 顯示動畫
+  finalAnimation.style.opacity = '1'; // 確保動畫可見
+  finalAnimation.style.zIndex = '1000'; // 確保動畫在最上層
 
-  setTimeout(async () => {
-    finalAnimation.style.display = 'none'; // 5 秒後隱藏動畫
+  setTimeout(() => {
+    // 隱藏動畫並清除樣式
+    finalAnimation.style.opacity = '0'; // 透明化動畫
+    setTimeout(() => {
+      finalAnimation.style.display = 'none'; // 完全隱藏動畫
+      finalAnimation.style.zIndex = '-1'; // 將動畫層級設為負值
+      finalAnimation.style.opacity = ''; // 清除 opacity 樣式
 
-    // 確保 treeImage 已初始化並重置為第一格
-    if (treeImage) {
-      treeImage.src = "frame/frame1.png";
-    }
-
-    // 確保留言板和樹的狀態正確更新
-    await renderTree();
-    await renderMessages();
+      // 僅在動畫結束後執行一次渲染
+      renderTree();
+      renderMessages();
+    }, 500); // 等待過渡效果完成後隱藏
   }, 5000); // 假設動畫播放時間為 5 秒
 }
-  
- async function renderMessages() {
+async function renderMessages() {
   try {
     const query = showingAll
       ? db.collection("messages").orderBy("createdAt", "desc") // 顯示所有留言
@@ -368,6 +373,7 @@ fetchMessages();
     console.error("Failed to render messages:", error);
   }
 }
+
 function adjustWavePosition() {
   const treeImage = document.getElementById('treeImage');
   const waveWrapper = document.querySelector('.waveWrapper');
@@ -403,13 +409,23 @@ document.getElementById('toggleAllBtn').addEventListener('click', () => {
   showingAll = !showingAll; // 切換顯示狀態
   document.getElementById('toggleAllBtn').innerText = showingAll ? "☰" : "☰All Blessings";
   renderMessages(); // 重新渲染留言
+  
   setTimeout(() => {
-    finalAnimation.style.display = 'none'; // 隱藏動畫
-    finalAnimation.style.opacity = '0'; // 確保動畫完全隱藏
+    // 隱藏動畫
+    finalAnimation.style.opacity = '0';
+    setTimeout(() => {
+      finalAnimation.style.display = 'none';
+      finalAnimation.style.zIndex = '-1';
+      finalAnimation.style.opacity = ''; // 清除 opacity 樣式
+
+      // 延遲執行渲染函數
+      setTimeout(() => {
+        renderTree();
+        renderMessages();
+      }, 100); // 延遲 100 毫秒
+    }, 500);
   }, 5000);
 }); // 補上閉合的 `})`
-
-  
 
 let treeImage;
 let container;
@@ -418,8 +434,13 @@ window.onload = () => {
   treeImage = document.getElementById('treeImage');
   container = document.getElementById('messagesContainer');
 
+  if (!container) {
+    console.error("留言板容器未正確初始化！");
+    return;
+  }
+
   renderTree();
   renderMessages();
-}; // 補上閉合的 `}`
+};
 </script>
 </html>
