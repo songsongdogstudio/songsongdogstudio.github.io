@@ -250,8 +250,6 @@
   <div id="finalAnimation" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
     <img src="congratulations.gif" alt="恭喜動畫" class="tree-frame" />
   </div>
-
-  <div class="footer">© 2025 sit-puê</div>
 </body>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -273,16 +271,20 @@
   const db = firebase.firestore();
 
  async function renderTree() {
-  const snapshot = await db.collection("messages").get();
-  const messages = snapshot.docs.map(doc => doc.data());
-  const totalInteractions = messages.length + messages.reduce((sum, msg) => sum + (msg.likes || 0), 0);
-  const frameIndex = Math.min(Math.floor(totalInteractions / 3) + 1, 22);
+  try {
+    const snapshot = await db.collection("messages").get();
+    const messages = snapshot.docs.map(doc => doc.data());
+    const totalInteractions = messages.length + messages.reduce((sum, msg) => sum + (msg.likes || 0), 0);
+    const frameIndex = Math.min(Math.floor(totalInteractions / 3) + 1, 22);
 
-  // 如果 frameIndex 達到 22，播放結尾動畫
-  if (frameIndex === 22) {
-    showFinalAnimation();
-  } else if (treeImage) {
-    treeImage.src = "/frame/frame" + frameIndex + ".png"; // 更新樹的圖片
+    // 如果 frameIndex 達到 22，播放結尾動畫
+    if (frameIndex === 22) {
+      showFinalAnimation();
+    } else if (treeImage) {
+      treeImage.src = "frame/frame" + frameIndex + ".png"; // 更新樹的圖片
+    }
+  } catch (error) {
+    console.error("Failed to render tree:", error);
   }
 }
 
@@ -302,67 +304,70 @@ fetchMessages();
   const finalAnimation = document.getElementById('finalAnimation');
   finalAnimation.style.display = 'flex'; // 顯示動畫
 
-  setTimeout(() => {
+  setTimeout(async () => {
     finalAnimation.style.display = 'none'; // 5 秒後隱藏動畫
 
-    // 確保 treeImage 已初始化
+    // 確保 treeImage 已初始化並重置為第一格
     if (treeImage) {
-      treeImage.src = "/frame/frame1.png"; // 重置樹的圖片為第一格
+      treeImage.src = "frame/frame1.png";
     }
 
-    // 重新渲染樹的狀態和留言板
-    renderTree();
-    renderMessages();
+    // 確保留言板和樹的狀態正確更新
+    await renderTree();
+    await renderMessages();
   }, 5000); // 假設動畫播放時間為 5 秒
 }
   
-  async function renderMessages() {
-  const query = showingAll
-    ? db.collection("messages").orderBy("createdAt", "desc") // 顯示所有留言
-    : db.collection("messages").orderBy("createdAt", "desc").limit(8); // 只顯示最新 8 則留言
+ async function renderMessages() {
+  try {
+    const query = showingAll
+      ? db.collection("messages").orderBy("createdAt", "desc") // 顯示所有留言
+      : db.collection("messages").orderBy("createdAt", "desc").limit(8); // 只顯示最新 8 則留言
 
-  const snapshot = await query.get();
-  if (container) {
-    container.innerHTML = ''; // 清空現有內容
+    const snapshot = await query.get();
+    if (container) {
+      container.innerHTML = ''; // 清空現有內容
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement('div');
-      div.className = 'message';
-      div.textContent = data.text;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement('div');
+        div.className = 'message';
+        div.textContent = data.text;
 
-      const heart = document.createElement('span');
-      heart.innerHTML = '❤';
-      heart.className = 'like-button' + (data.liked ? ' liked' : '');
+        const heart = document.createElement('span');
+        heart.innerHTML = '❤';
+        heart.className = 'like-button' + (data.liked ? ' liked' : '');
 
-      const likeCount = document.createElement('span');
-      likeCount.className = 'like-count';
-      likeCount.textContent = data.likes || 0;
+        const likeCount = document.createElement('span');
+        likeCount.className = 'like-count';
+        likeCount.textContent = data.likes || 0;
 
-      heart.appendChild(likeCount);
-      div.appendChild(heart);
-      container.appendChild(div);
+        heart.appendChild(likeCount);
+        div.appendChild(heart);
+        container.appendChild(div);
 
-      heart.onclick = async () => {
-        const docRef = db.collection("messages").doc(doc.id);
+        heart.onclick = async () => {
+          const docRef = db.collection("messages").doc(doc.id);
 
-        try {
-          // 使用 Firebase 的原子操作來更新 likes
-          await docRef.update({
-            likes: firebase.firestore.FieldValue.increment(1) // 每次點擊增加 1
-          });
+          try {
+            // 使用 Firebase 的原子操作來更新 likes
+            await docRef.update({
+              likes: firebase.firestore.FieldValue.increment(1) // 每次點擊增加 1
+            });
 
-          // 重新渲染留言和樹的狀態
-          renderMessages();
-          renderTree();
-        } catch (error) {
-          console.error("Failed to update likes:", error);
-        }
-      };
-    }); // 關閉 forEach
-  } // 關閉 if (container)
-} // 關閉 renderMessages 函數
-
+            // 重新渲染留言和樹的狀態
+            await renderMessages();
+            await renderTree();
+          } catch (error) {
+            console.error("Failed to update likes:", error);
+          }
+        };
+      }); // 關閉 forEach
+    } // 關閉 if (container)
+  } catch (error) {
+    console.error("Failed to render messages:", error);
+  }
+}
 function adjustWavePosition() {
   const treeImage = document.getElementById('treeImage');
   const waveWrapper = document.querySelector('.waveWrapper');
@@ -399,9 +404,10 @@ document.getElementById('toggleAllBtn').addEventListener('click', () => {
   document.getElementById('toggleAllBtn').innerText = showingAll ? "☰" : "☰All Blessings";
   renderMessages(); // 重新渲染留言
   setTimeout(() => {
-    window.scrollTo({ top: showingAll ? document.body.scrollHeight : 0, behavior: 'smooth' });
-  }, 150);
-});
+    finalAnimation.style.display = 'none'; // 隱藏動畫
+    finalAnimation.style.opacity = '0'; // 確保動畫完全隱藏
+  }, 5000);
+}); // 補上閉合的 `})`
 
   
 
@@ -414,6 +420,6 @@ window.onload = () => {
 
   renderTree();
   renderMessages();
-};
+}; // 補上閉合的 `}`
 </script>
 </html>
