@@ -34,43 +34,29 @@
      z-index: 10; /* 提升留言板層級 */
     }
     .message-form {
-      position: relative; /* 確保按鈕的定位基於表單容器 */
-      align-items: center;
-      margin: 20px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+     display: flex; /* 使用 flexbox 將輸入框和按鈕排列在同一行 */
+  align-items: center; /* 垂直置中 */
+  gap: 10px; /* 輸入框和按鈕之間的間距 */
+  margin: 20px 0;
     }
-    .message-form input, .message-form button {
+    .message-form input{
       flex: 1; /* 讓輸入框填滿剩餘空間 */
-    padding: 20px;
-    font-size: 20px;
-    border-radius: 8px;
-    border: none;
-    box-sizing: border-box;
-      width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      border-radius: 8px;
-      border: none;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+  box-sizing: border-box;
     }
-    .message-form button {
-      position: absolute;
-    bottom: 10px; /* 調整按鈕位置 */
-    right: 10px; /* 調整按鈕位置 */
-    width: 80px; /* 縮小按鈕寬度 */
-    height: 30px; /* 縮小按鈕高度 */
-    font-size: 15px; /* 調整字體大小 */
-    border-radius: 8px;
-    background: #cccccc;
-    color: #333;
-    cursor: pointer;
-    transition: background 0.3s;
-     text-align: center;
-     line-height: 30px; /* 文字垂直置中，與按鈕高度一致 */
-    padding: 0; /* 移除內邊距，避免影響文字對齊 */
-    box-sizing: border-box; /* 確保寬高計算包含邊框 */
-    }
+  .message-form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: #cccccc;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.3s;
+}
     .message-form button:hover {
       background: #aaaaaa;
     }
